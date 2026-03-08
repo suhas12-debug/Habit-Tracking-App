@@ -146,8 +146,9 @@ export default function HabitsPage() {
           onClose={() => setDetailHabit(null)}
           onEdit={(h) => { setEditHabit(h); setShowAdd(true); setDetailHabit(null); }}
           onDelete={handleDelete}
-          onToggleDate={handleToggleDate}
-          onStreakFreeze={handleStreakFreeze}
+           onToggleDate={handleToggleDate}
+           onStreakFreeze={handleStreakFreeze}
+           onRemoveFreeze={handleRemoveFreeze}
         />
       )}
     </div>
