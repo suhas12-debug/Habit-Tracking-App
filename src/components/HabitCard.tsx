@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { Habit, formatDate, getCurrentStreak, getCompletionRate } from '@/lib/storage';
+import { Habit, formatDate, getCurrentStreak, getCompletionRate, isWeekCompleted } from '@/lib/storage';
 import { CompactGrid } from './ContributionGrid';
 import { useState, useRef } from 'react';
 
