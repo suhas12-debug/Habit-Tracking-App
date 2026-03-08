@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { Habit, formatDate, getCurrentStreak, getCompletionRate } from '@/lib/storage';
+import { Habit, formatDate, getCurrentStreak, getCompletionRate, isWeekCompleted } from '@/lib/storage';
 import { CompactGrid } from './ContributionGrid';
 import { useState, useRef } from 'react';
 
@@ -12,7 +12,9 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, onToggleDate, onClick, onEdit }: HabitCardProps) {
   const today = formatDate(new Date());
-  const isComplete = habit.completionDates.includes(today);
+  const isComplete = habit.frequency === 'weekly'
+    ? isWeekCompleted(habit, new Date())
+    : habit.completionDates.includes(today);
   const streak = getCurrentStreak(habit);
   const rate = getCompletionRate(habit);
   const longPressTimer = useRef<number | null>(null);

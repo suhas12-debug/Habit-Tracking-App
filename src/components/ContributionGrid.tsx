@@ -1,4 +1,4 @@
-import { Habit, formatDate } from '@/lib/storage';
+import { Habit, formatDate, isWeekCompleted } from '@/lib/storage';
 
 interface ContributionGridProps {
   habit: Habit;
@@ -16,7 +16,9 @@ export function ContributionGrid({ habit, days = 365, onToggle, cellSize = 12 }:
     const d = new Date();
     d.setDate(d.getDate() - (days - 1 - i));
     const date = formatDate(d);
-    const isCompleted = completions.has(date);
+    const isCompleted = habit.frequency === 'weekly'
+      ? isWeekCompleted(habit, d)
+      : completions.has(date);
     const isToday = date === today;
     const isFuture = date > today;
     return { date, isCompleted, isToday, isFuture };
@@ -68,7 +70,9 @@ export function CompactGrid({ habit }: { habit: Habit }) {
     const date = formatDate(d);
     return {
       date,
-      isCompleted: completions.has(date),
+      isCompleted: habit.frequency === 'weekly'
+        ? isWeekCompleted(habit, d)
+        : completions.has(date),
       isToday: date === today,
       isFuture: date > today,
     };

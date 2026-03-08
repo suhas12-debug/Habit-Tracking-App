@@ -65,13 +65,28 @@ export function getCurrentStreak(habit: Habit): number {
   let streak = 0;
   const today = new Date();
 
+  if (habit.frequency === 'weekly') {
+    // Count consecutive weeks completed
+    const monday = getMonday(today);
+    for (let w = 0; w < 52; w++) {
+      const weekStart = new Date(monday);
+      weekStart.setDate(weekStart.getDate() - w * 7);
+      if (formatDate(weekStart) < habit.startDate) break;
+      if (isWeekCompleted(habit, weekStart) || freezes.has(formatDate(weekStart))) {
+        streak++;
+      } else if (w > 0) {
+        break;
+      }
+    }
+    return streak;
+  }
+
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const ds = formatDate(d);
 
     if (ds < habit.startDate) break;
-
     if (!shouldTrackDay(habit, d)) continue;
 
     if (completions.has(ds) || freezes.has(ds)) {
@@ -123,9 +138,11 @@ export function getCompletionRate(habit: Habit): number {
 function shouldTrackDay(habit: Habit, date: Date): boolean {
   if (habit.frequency === 'daily') return true;
   if (habit.frequency === 'weekly') {
+    // Weekly habits are tracked once per week (Mon-Sun).
+    // Only the Monday of each week is the "checkpoint" for streak purposes.
     const day = date.getDay();
     const jsToCustom = day === 0 ? 6 : day - 1;
-    return jsToCustom === 0; // Monday only for weekly
+    return jsToCustom === 0; // Monday is the checkpoint day
   }
   if (habit.frequency === 'custom') {
     const day = date.getDay();
@@ -133,6 +150,27 @@ function shouldTrackDay(habit: Habit, date: Date): boolean {
     return habit.customDays.includes(jsToCustom);
   }
   return true;
+}
+
+// For weekly habits: check if any day in the same week (Mon-Sun) has a completion
+export function isWeekCompleted(habit: Habit, date: Date): boolean {
+  if (habit.frequency !== 'weekly') return false;
+  const completions = new Set(habit.completionDates);
+  const monday = getMonday(date);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    if (completions.has(formatDate(d))) return true;
+  }
+  return false;
+}
+
+function getMonday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d;
 }
 
 export function exportDataCSV(habits: Habit[]): string {
