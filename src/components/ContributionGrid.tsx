@@ -162,13 +162,13 @@ export function ContributionGrid({ habit, onToggle }: ContributionGridProps) {
                         height: cellSize,
                         marginRight: gap,
                         backgroundColor: cell.isBeforeCreation
-                          ? 'hsl(var(--muted))'
+                          ? 'hsl(0 0% 70%)'
                           : cell.isFuture
-                          ? 'hsl(var(--muted))'
+                          ? 'hsl(0 0% 70%)'
                           : cell.isCompleted
                           ? habit.color
                           : 'hsl(0 60% 50%)',
-                        opacity: cell.isBeforeCreation ? 0.2 : cell.isFuture ? 0.2 : cell.isCompleted ? 1 : 0.35,
+                        opacity: cell.isBeforeCreation ? 0.3 : cell.isFuture ? 0.3 : cell.isCompleted ? 1 : 0.4,
                       }}
                       title={`${cell.date}${cell.isCompleted ? ' ✓' : ''}`}
                     />
