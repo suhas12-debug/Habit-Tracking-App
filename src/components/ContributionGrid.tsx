@@ -98,12 +98,10 @@ export function CompactGrid({ habit }: { habit: Habit }) {
               cell.isToday ? 'ring-1 ring-foreground/30' : ''
             }`}
             style={{
-              backgroundColor: cell.isBeforeCreation || cell.isFuture
-                ? 'transparent'
-                : cell.isCompleted
+              backgroundColor: cell.isCompleted
                 ? habit.color
                 : 'hsl(var(--muted))',
-              opacity: cell.isBeforeCreation ? 0.1 : cell.isFuture ? 0.15 : cell.isCompleted ? 1 : 0.3,
+              opacity: cell.isBeforeCreation ? 0.15 : cell.isFuture ? 0.2 : cell.isCompleted ? 1 : 0.3,
             }}
           />
         </div>
