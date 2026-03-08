@@ -120,7 +120,7 @@ export function HabitDetail({ habit, onClose, onEdit, onDelete, onToggleDate, on
 
         {/* Contribution Grid */}
         <div className="bg-card border border-border rounded-xl p-4 mb-6">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Last 365 Days</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">{new Date().getFullYear()} Tracking</h3>
           <ContributionGrid
             habit={habit}
             days={365}
