@@ -10,6 +10,7 @@ export interface Habit {
   streakFreezes: string[]; // dates where freeze was used
   notes: Record<string, string>; // date -> note
   archived: boolean;
+  order: number; // display order (lower = higher priority)
   createdAt: string;
 }
 
