@@ -232,7 +232,7 @@ export function AddHabitDialog({ open, onClose, onSave, editHabit, onDelete }: A
                     onChange={(e) =>
                       setReminders(reminders.map(r => r.id === reminder.id ? { ...r, time: e.target.value } : r))
                     }
-                    className="bg-secondary border border-border rounded-lg px-4 py-2 text-foreground w-full focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="bg-secondary border border-border rounded-lg px-4 py-2 text-white w-full focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
               ))}
