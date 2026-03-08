@@ -35,6 +35,7 @@ export function AddHabitDialog({ open, onClose, onSave, editHabit, onDelete }: A
       streakGoal,
       category,
       completionsPerDay,
+      weeklyGoal,
       reminders,
       completions: editHabit?.completions || {},
       createdAt: editHabit?.createdAt || new Date().toISOString(),
