@@ -1,4 +1,4 @@
-import { Habit, formatDate } from '@/lib/storage';
+import { Habit, formatDate, isWeekCompleted } from '@/lib/storage';
 
 interface ContributionGridProps {
   habit: Habit;
