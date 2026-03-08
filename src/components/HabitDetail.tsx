@@ -118,14 +118,12 @@ export function HabitDetail({ habit, onClose, onEdit, onDelete, onToggleDate, on
           {isCompleteToday ? '✓ Completed Today' : 'Mark Today Complete'}
         </button>
 
-        {/* Contribution Grid */}
+        {/* Contribution Grid - Full width */}
         <div className="bg-card border border-border rounded-xl p-4 mb-6">
-          <h3 className="text-sm font-semibold text-foreground mb-3">{new Date().getFullYear()} Tracking</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">{new Date().getFullYear()} Tracking</h3>
           <ContributionGrid
             habit={habit}
-            days={365}
             onToggle={(date) => onToggleDate(habit.id, date)}
-            cellSize={10}
           />
         </div>
 
