@@ -10,6 +10,7 @@ interface HabitDetailProps {
   onDelete: (id: string) => void;
   onToggleDate: (id: string, date: string) => void;
   onStreakFreeze: (id: string) => void;
+  onRemoveFreeze: (id: string, date: string) => void;
 }
 
 export function HabitDetail({ habit, onClose, onEdit, onDelete, onToggleDate, onStreakFreeze }: HabitDetailProps) {
