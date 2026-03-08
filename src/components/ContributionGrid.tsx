@@ -45,12 +45,12 @@ export function ContributionGrid({ habit, days = 365, onToggle, cellSize = 12 }:
           style={{
             width: cellSize,
             height: cellSize,
-            backgroundColor: cell.isFuture
+            backgroundColor: cell.isBeforeCreation || cell.isFuture
               ? 'transparent'
               : cell.isCompleted
               ? habit.color
               : 'hsl(var(--muted))',
-            opacity: cell.isFuture ? 0.2 : cell.isCompleted ? 1 : 0.4,
+            opacity: cell.isBeforeCreation ? 0.1 : cell.isFuture ? 0.2 : cell.isCompleted ? 1 : 0.4,
           }}
           title={`${cell.date}${cell.isCompleted ? ' ✓' : ''}`}
         />
