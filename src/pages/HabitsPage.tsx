@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Habit, getHabits, saveHabits, formatDate } from '@/lib/storage';
 import { HabitCard } from '@/components/HabitCard';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { scheduleHabitReminders } from '@/lib/notifications';
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
