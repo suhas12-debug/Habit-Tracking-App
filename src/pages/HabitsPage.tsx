@@ -18,6 +18,7 @@ export default function HabitsPage() {
   const save = (updated: Habit[]) => {
     setHabits(updated);
     saveHabits(updated);
+    scheduleHabitReminders(updated);
   };
 
   const handleToggleToday = (id: string) => {
