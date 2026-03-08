@@ -17,8 +17,8 @@ export function ContributionGrid({ habit, days = 365, onToggle, cellSize = 11 }:
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(endDate.getDate() - days + 1);
+  const currentYear = endDate.getFullYear();
+  const startDate = new Date(currentYear, 0, 1); // Jan 1 of current year
 
   // Align start to Monday
   const startDay = startDate.getDay();
