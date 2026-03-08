@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Download } from 'lucide-react';
-import { getHabits, exportAllData, Habit, formatDate } from '@/lib/storage';
+import { getHabits, Habit, formatDate } from '@/lib/storage';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import jsPDF from 'jspdf';
 
 export default function StatsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -11,14 +12,37 @@ export default function StatsPage() {
   }, []);
 
   const handleExport = () => {
-    const data = exportAllData();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `habitkit-export-${formatDate(new Date())}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const doc = new jsPDF();
+    const today = formatDate(new Date());
+    doc.setFontSize(18);
+    doc.text('Habit Harmony - Stats Report', 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Exported: ${today}`, 14, 28);
+
+    let y = 40;
+    doc.setFontSize(13);
+    doc.text('Last 7 Days Completion', 14, y);
+    y += 8;
+    doc.setFontSize(10);
+    last7Days.forEach(d => {
+      doc.text(`${d.day}: ${d.completed}/${d.total} (${d.rate}%)`, 18, y);
+      y += 6;
+    });
+
+    y += 6;
+    doc.setFontSize(13);
+    doc.text('Per Habit Stats', 14, y);
+    y += 8;
+    doc.setFontSize(10);
+    habitStats.forEach(h => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(`${h.icon} ${h.name} (${h.category || 'No category'})`, 18, y);
+      y += 6;
+      doc.text(`  Streak: ${h.streak} | Days Done: ${h.completeDays} | Total: ${h.totalCompletions}`, 22, y);
+      y += 8;
+    });
+
+    doc.save(`habitkit-report-${today}.pdf`);
   };
 
   // Last 7 days completion data
