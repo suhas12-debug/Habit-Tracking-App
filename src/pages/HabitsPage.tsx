@@ -79,6 +79,18 @@ export default function HabitsPage() {
     }
   };
 
+  const handleRemoveFreeze = (id: string, date: string) => {
+    const updated = habits.map(h => {
+      if (h.id !== id) return h;
+      return { ...h, streakFreezes: h.streakFreezes.filter(d => d !== date) };
+    });
+    save(updated);
+    if (detailHabit) {
+      setDetailHabit(updated.find(h => h.id === detailHabit.id) || null);
+    }
+    toast.info('Streak freeze removed');
+  };
+
   const activeHabits = habits.filter(h => !h.archived);
 
   return (
@@ -134,8 +146,9 @@ export default function HabitsPage() {
           onClose={() => setDetailHabit(null)}
           onEdit={(h) => { setEditHabit(h); setShowAdd(true); setDetailHabit(null); }}
           onDelete={handleDelete}
-          onToggleDate={handleToggleDate}
-          onStreakFreeze={handleStreakFreeze}
+           onToggleDate={handleToggleDate}
+           onStreakFreeze={handleStreakFreeze}
+           onRemoveFreeze={handleRemoveFreeze}
         />
       )}
     </div>
