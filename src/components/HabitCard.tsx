@@ -12,7 +12,9 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, onToggleDate, onClick, onEdit }: HabitCardProps) {
   const today = formatDate(new Date());
-  const isComplete = habit.completionDates.includes(today);
+  const isComplete = habit.frequency === 'weekly'
+    ? isWeekCompleted(habit, new Date())
+    : habit.completionDates.includes(today);
   const streak = getCurrentStreak(habit);
   const rate = getCompletionRate(habit);
   const longPressTimer = useRef<number | null>(null);

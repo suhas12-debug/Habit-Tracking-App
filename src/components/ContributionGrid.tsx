@@ -70,7 +70,9 @@ export function CompactGrid({ habit }: { habit: Habit }) {
     const date = formatDate(d);
     return {
       date,
-      isCompleted: completions.has(date),
+      isCompleted: habit.frequency === 'weekly'
+        ? isWeekCompleted(habit, d)
+        : completions.has(date),
       isToday: date === today,
       isFuture: date > today,
     };

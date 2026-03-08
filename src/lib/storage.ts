@@ -65,13 +65,28 @@ export function getCurrentStreak(habit: Habit): number {
   let streak = 0;
   const today = new Date();
 
+  if (habit.frequency === 'weekly') {
+    // Count consecutive weeks completed
+    const monday = getMonday(today);
+    for (let w = 0; w < 52; w++) {
+      const weekStart = new Date(monday);
+      weekStart.setDate(weekStart.getDate() - w * 7);
+      if (formatDate(weekStart) < habit.startDate) break;
+      if (isWeekCompleted(habit, weekStart) || freezes.has(formatDate(weekStart))) {
+        streak++;
+      } else if (w > 0) {
+        break;
+      }
+    }
+    return streak;
+  }
+
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const ds = formatDate(d);
 
     if (ds < habit.startDate) break;
-
     if (!shouldTrackDay(habit, d)) continue;
 
     if (completions.has(ds) || freezes.has(ds)) {
