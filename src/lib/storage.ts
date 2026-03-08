@@ -20,8 +20,26 @@ export interface Reminder {
   days: number[]; // 0=Mon...6=Sun
 }
 
+export interface CalendarNote {
+  id: string;
+  date: string; // "YYYY-MM-DD"
+  text: string;
+  createdAt: string;
+}
+
+export interface CalendarReminder {
+  id: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  title: string;
+  notified: boolean;
+  createdAt: string;
+}
+
 const HABITS_KEY = 'habitgrid_habits';
 const REMINDERS_KEY = 'habitgrid_reminders';
+const CALENDAR_NOTES_KEY = 'habitgrid_calendar_notes';
+const CALENDAR_REMINDERS_KEY = 'habitgrid_calendar_reminders';
 const ONBOARDING_KEY = 'habitgrid_onboarding_done';
 
 export function getHabits(): Habit[] {
@@ -40,6 +58,24 @@ export function getReminders(): Reminder[] {
 
 export function saveReminders(reminders: Reminder[]) {
   localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+}
+
+export function getCalendarNotes(): CalendarNote[] {
+  const data = localStorage.getItem(CALENDAR_NOTES_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveCalendarNotes(notes: CalendarNote[]) {
+  localStorage.setItem(CALENDAR_NOTES_KEY, JSON.stringify(notes));
+}
+
+export function getCalendarReminders(): CalendarReminder[] {
+  const data = localStorage.getItem(CALENDAR_REMINDERS_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveCalendarReminders(reminders: CalendarReminder[]) {
+  localStorage.setItem(CALENDAR_REMINDERS_KEY, JSON.stringify(reminders));
 }
 
 export function isOnboardingDone(): boolean {
