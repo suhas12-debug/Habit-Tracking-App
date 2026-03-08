@@ -18,6 +18,7 @@ export function AddHabitDialog({ open, onClose, onSave, editHabit, onDelete }: A
   const [streakGoal, setStreakGoal] = useState<Habit['streakGoal']>(editHabit?.streakGoal || 'none');
   const [category, setCategory] = useState(editHabit?.category || '');
   const [completionsPerDay, setCompletionsPerDay] = useState(editHabit?.completionsPerDay || 1);
+  const [weeklyGoal, setWeeklyGoal] = useState(editHabit?.weeklyGoal || 0);
   const [reminders, setReminders] = useState<Reminder[]>(editHabit?.reminders || []);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
