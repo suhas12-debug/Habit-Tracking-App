@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Habit, getHabits, saveHabits, formatDate } from '@/lib/storage';
 import { HabitCard } from '@/components/HabitCard';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { scheduleHabitReminders } from '@/lib/notifications';
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -16,6 +18,7 @@ export default function HabitsPage() {
   const save = (updated: Habit[]) => {
     setHabits(updated);
     saveHabits(updated);
+    scheduleHabitReminders(updated);
   };
 
   const handleToggleToday = (id: string) => {
@@ -48,7 +51,7 @@ export default function HabitsPage() {
     <div className="pb-24">
       <header className="flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-3">
-          <Settings className="w-5 h-5 text-muted-foreground" />
+          <ThemeToggle />
           <h1 className="text-xl font-bold text-foreground">
             Habit<span className="text-primary">Kit</span>
           </h1>
