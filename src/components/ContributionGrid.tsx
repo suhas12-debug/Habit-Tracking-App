@@ -16,12 +16,13 @@ export function ContributionGrid({ habit, days = 365, onToggle, cellSize = 12 }:
     const d = new Date();
     d.setDate(d.getDate() - (days - 1 - i));
     const date = formatDate(d);
-    const isCompleted = habit.frequency === 'weekly'
+    const isBeforeCreation = date < habit.startDate;
+    const isCompleted = isBeforeCreation ? false : (habit.frequency === 'weekly'
       ? isWeekCompleted(habit, d)
-      : completions.has(date);
+      : completions.has(date));
     const isToday = date === today;
     const isFuture = date > today;
-    return { date, isCompleted, isToday, isFuture };
+    return { date, isCompleted, isToday, isFuture, isBeforeCreation };
   });
 
   return (
