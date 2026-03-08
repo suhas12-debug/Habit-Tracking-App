@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { Habit, getHabits, saveHabits, formatDate } from '@/lib/storage';
 import { HabitCard } from '@/components/HabitCard';
@@ -12,11 +12,18 @@ export default function HabitsPage() {
   const [editHabit, setEditHabit] = useState<Habit | null>(null);
   const [detailHabit, setDetailHabit] = useState<Habit | null>(null);
 
+  // Drag reorder state
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
+  const longPressTimer = useRef<number | null>(null);
+  const dragStartY = useRef<number>(0);
+  const dragCurrentY = useRef<number>(0);
+
   useEffect(() => {
     setHabits(getHabits());
   }, []);
 
-  // Listen for add event from bottom nav
   useEffect(() => {
     const handler = () => { setEditHabit(null); setShowAdd(true); };
     window.addEventListener('habitgrid:add', handler);
@@ -40,7 +47,6 @@ export default function HabitsPage() {
       };
     });
     save(updated);
-    // Update detail view if open
     if (detailHabit) {
       setDetailHabit(updated.find(h => h.id === detailHabit.id) || null);
     }
@@ -91,7 +97,78 @@ export default function HabitsPage() {
     toast.info('Streak freeze removed');
   };
 
-  const activeHabits = habits.filter(h => !h.archived);
+  // Reorder logic
+  const activeHabits = habits
+    .filter(h => !h.archived)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+  const handleReorderStart = useCallback((index: number, clientY: number) => {
+    setDragIndex(index);
+    setDragOverIndex(index);
+    setIsReordering(true);
+    dragStartY.current = clientY;
+    dragCurrentY.current = clientY;
+    if (navigator.vibrate) navigator.vibrate(30);
+  }, []);
+
+  const handleReorderMove = useCallback((clientY: number) => {
+    if (dragIndex === null) return;
+    dragCurrentY.current = clientY;
+    // Calculate which index we're hovering over based on card height (~90px)
+    const cardHeight = 90;
+    const delta = clientY - dragStartY.current;
+    const indexDelta = Math.round(delta / cardHeight);
+    const newIndex = Math.max(0, Math.min(activeHabits.length - 1, dragIndex + indexDelta));
+    setDragOverIndex(newIndex);
+  }, [dragIndex, activeHabits.length]);
+
+  const handleReorderEnd = useCallback(() => {
+    if (dragIndex !== null && dragOverIndex !== null && dragIndex !== dragOverIndex) {
+      const reordered = [...activeHabits];
+      const [moved] = reordered.splice(dragIndex, 1);
+      reordered.splice(dragOverIndex, 0, moved);
+      // Update order values
+      const updatedHabits = habits.map(h => {
+        const newIdx = reordered.findIndex(r => r.id === h.id);
+        if (newIdx >= 0) return { ...h, order: newIdx };
+        return h;
+      });
+      save(updatedHabits);
+      toast.success('Habits reordered');
+    }
+    setDragIndex(null);
+    setDragOverIndex(null);
+    setIsReordering(false);
+  }, [dragIndex, dragOverIndex, activeHabits, habits]);
+
+  // Touch handlers for reorder
+  const handleCardTouchStart = (index: number, e: React.TouchEvent) => {
+    const clientY = e.touches[0].clientY;
+    longPressTimer.current = window.setTimeout(() => {
+      handleReorderStart(index, clientY);
+    }, 500);
+  };
+
+  const handleCardTouchMove = (e: React.TouchEvent) => {
+    if (longPressTimer.current && !isReordering) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    if (isReordering) {
+      e.preventDefault();
+      handleReorderMove(e.touches[0].clientY);
+    }
+  };
+
+  const handleCardTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    if (isReordering) {
+      handleReorderEnd();
+    }
+  };
 
   return (
     <div className="pb-24">
@@ -120,14 +197,36 @@ export default function HabitsPage() {
             <p className="text-muted-foreground text-sm">Tap + to create your first habit</p>
           </div>
         )}
-        {activeHabits.map(habit => (
-          <HabitCard
+
+        {isReordering && (
+          <div className="text-center text-xs text-primary font-medium animate-pulse mb-2">
+            ↕ Drag to reorder • Release to save
+          </div>
+        )}
+
+        {activeHabits.map((habit, index) => (
+          <div
             key={habit.id}
-            habit={habit}
-            onToggleDate={handleToggleDate}
-            onClick={(h) => setDetailHabit(h)}
-            onEdit={(h) => { setEditHabit(h); setShowAdd(true); }}
-          />
+            className={`transition-all duration-200 ${
+              isReordering && dragIndex === index
+                ? 'opacity-50 scale-95'
+                : ''
+            } ${
+              isReordering && dragOverIndex === index && dragIndex !== index
+                ? 'border-t-2 border-primary pt-1'
+                : ''
+            }`}
+            onTouchStart={(e) => handleCardTouchStart(index, e)}
+            onTouchMove={(e) => handleCardTouchMove(e)}
+            onTouchEnd={handleCardTouchEnd}
+          >
+            <HabitCard
+              habit={habit}
+              onToggleDate={handleToggleDate}
+              onClick={(h) => !isReordering && setDetailHabit(h)}
+              onEdit={(h) => { setEditHabit(h); setShowAdd(true); }}
+            />
+          </div>
         ))}
       </div>
 
@@ -146,9 +245,9 @@ export default function HabitsPage() {
           onClose={() => setDetailHabit(null)}
           onEdit={(h) => { setEditHabit(h); setShowAdd(true); setDetailHabit(null); }}
           onDelete={handleDelete}
-           onToggleDate={handleToggleDate}
-           onStreakFreeze={handleStreakFreeze}
-           onRemoveFreeze={handleRemoveFreeze}
+          onToggleDate={handleToggleDate}
+          onStreakFreeze={handleStreakFreeze}
+          onRemoveFreeze={handleRemoveFreeze}
         />
       )}
     </div>
