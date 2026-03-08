@@ -14,6 +14,25 @@ export function HabitCard({ habit, onToggleToday, onClick }: HabitCardProps) {
   const isComplete = todayCount >= habit.completionsPerDay;
   const now = new Date();
 
+  // Weekly progress calculation
+  const getWeeklyProgress = () => {
+    if (!habit.weeklyGoal || habit.weeklyGoal === 0) return null;
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    let daysCompleted = 0;
+    for (let i = 0; i <= mondayOffset; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const ds = formatDate(d);
+      if ((habit.completions[ds] || 0) >= habit.completionsPerDay) {
+        daysCompleted++;
+      }
+    }
+    return { done: daysCompleted, goal: habit.weeklyGoal };
+  };
+  const weeklyProgress = getWeeklyProgress();
+
   return (
     <div
       className="bg-card rounded-lg p-4 border border-border cursor-pointer animate-fade-in hover:border-muted-foreground/30 transition-colors"
