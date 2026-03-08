@@ -72,6 +72,22 @@ export function HabitCard({ habit, onToggleToday, onClick }: HabitCardProps) {
         </button>
       </div>
       <HabitGrid habit={habit} month={now.getMonth()} year={now.getFullYear()} />
+      {weeklyProgress && (
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.min(100, (weeklyProgress.done / weeklyProgress.goal) * 100)}%`,
+                backgroundColor: `hsl(${habit.color})`,
+              }}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
+            {weeklyProgress.done}/{weeklyProgress.goal} this week
+          </span>
+        </div>
+      )}
     </div>
   );
 }
