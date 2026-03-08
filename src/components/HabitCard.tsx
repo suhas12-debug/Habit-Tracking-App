@@ -1,93 +1,99 @@
 import { Check } from 'lucide-react';
-import { Habit, formatDate } from '@/lib/storage';
-import { HabitGrid } from './HabitGrid';
+import { Habit, formatDate, getCurrentStreak, getCompletionRate } from '@/lib/storage';
+import { CompactGrid } from './ContributionGrid';
+import { useState, useRef } from 'react';
 
 interface HabitCardProps {
   habit: Habit;
-  onToggleToday: (id: string) => void;
+  onToggleDate: (id: string, date: string) => void;
   onClick: (habit: Habit) => void;
+  onEdit: (habit: Habit) => void;
 }
 
-export function HabitCard({ habit, onToggleToday, onClick }: HabitCardProps) {
+export function HabitCard({ habit, onToggleDate, onClick, onEdit }: HabitCardProps) {
   const today = formatDate(new Date());
-  const todayCount = habit.completions[today] || 0;
-  const isComplete = todayCount >= habit.completionsPerDay;
-  const now = new Date();
+  const isComplete = habit.completionDates.includes(today);
+  const streak = getCurrentStreak(habit);
+  const rate = getCompletionRate(habit);
+  const longPressTimer = useRef<number | null>(null);
+  const [pressing, setPressing] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const [swiped, setSwiped] = useState<'left' | 'right' | null>(null);
 
-  // Weekly progress calculation
-  const getWeeklyProgress = () => {
-    if (!habit.weeklyGoal || habit.weeklyGoal === 0) return null;
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    let daysCompleted = 0;
-    for (let i = 0; i <= mondayOffset; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const ds = formatDate(d);
-      if ((habit.completions[ds] || 0) >= habit.completionsPerDay) {
-        daysCompleted++;
-      }
-    }
-    return { done: daysCompleted, goal: habit.weeklyGoal };
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    setPressing(true);
+    longPressTimer.current = window.setTimeout(() => {
+      onEdit(habit);
+      setPressing(false);
+    }, 600);
   };
-  const weeklyProgress = getWeeklyProgress();
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const dx = e.touches[0].clientX - touchStart.current.x;
+    if (Math.abs(dx) > 50) {
+      if (longPressTimer.current) clearTimeout(longPressTimer.current);
+      if (dx > 50) setSwiped('right');
+      if (dx < -50) setSwiped('left');
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    setPressing(false);
+    if (swiped === 'right') {
+      onToggleDate(habit.id, today);
+    }
+    setSwiped(null);
+    touchStart.current = null;
+  };
 
   return (
     <div
-      className="bg-card rounded-lg p-4 border border-border cursor-pointer animate-fade-in hover:border-muted-foreground/30 transition-colors"
+      className={`bg-card rounded-xl p-4 border border-border animate-fade-in transition-all duration-200 ${
+        pressing ? 'scale-[0.98]' : ''
+      } ${swiped === 'right' ? 'translate-x-4 opacity-80' : ''} ${swiped === 'left' ? '-translate-x-4 opacity-80' : ''}`}
       onClick={() => onClick(habit)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-            style={{ backgroundColor: `hsl(${habit.color} / 0.2)` }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+            style={{ backgroundColor: `${habit.color}20` }}
           >
             {habit.icon}
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">{habit.name}</h3>
-            {habit.description && (
-              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{habit.description}</p>
-            )}
+            <h3 className="font-semibold text-foreground text-[15px]">{habit.name}</h3>
+            <div className="flex items-center gap-3 mt-0.5">
+              <span className="text-xs text-muted-foreground">🔥 {streak} day{streak !== 1 ? 's' : ''}</span>
+              <span className="text-xs text-muted-foreground">{rate}%</span>
+            </div>
           </div>
         </div>
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onToggleToday(habit.id);
+            onToggleDate(habit.id, today);
           }}
-          className="w-12 h-12 rounded-lg flex items-center justify-center transition-all"
+          className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-90 ${
+            isComplete ? 'animate-check-pop' : ''
+          }`}
           style={{
-            backgroundColor: isComplete
-              ? `hsl(${habit.color})`
-              : `hsl(${habit.color} / 0.15)`,
+            backgroundColor: isComplete ? habit.color : `${habit.color}20`,
           }}
         >
           <Check
-            className="w-6 h-6 transition-colors"
-            style={{ color: isComplete ? 'white' : `hsl(${habit.color} / 0.4)` }}
+            className="w-5 h-5 transition-colors"
+            style={{ color: isComplete ? 'white' : `${habit.color}60` }}
           />
         </button>
       </div>
-      <HabitGrid habit={habit} month={now.getMonth()} year={now.getFullYear()} />
-      {weeklyProgress && (
-        <div className="mt-3 flex items-center gap-2">
-          <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all"
-              style={{
-                width: `${Math.min(100, (weeklyProgress.done / weeklyProgress.goal) * 100)}%`,
-                backgroundColor: `hsl(${habit.color})`,
-              }}
-            />
-          </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {weeklyProgress.done}/{weeklyProgress.goal} this week
-          </span>
-        </div>
-      )}
+      <CompactGrid habit={habit} />
     </div>
   );
 }

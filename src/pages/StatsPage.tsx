@@ -1,193 +1,121 @@
 import { useState, useEffect } from 'react';
-import { Download } from 'lucide-react';
-import { getHabits, Habit, formatDate } from '@/lib/storage';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import jsPDF from 'jspdf';
+import { getHabits, Habit, formatDate, getCurrentStreak, getLongestStreak, getCompletionRate } from '@/lib/storage';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function StatsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
 
   useEffect(() => {
-    setHabits(getHabits());
+    setHabits(getHabits().filter(h => !h.archived));
   }, []);
 
-  const handleExport = () => {
-    const doc = new jsPDF();
-    const today = formatDate(new Date());
-    doc.setFontSize(18);
-    doc.text('Habit Harmony - Stats Report', 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Exported: ${today}`, 14, 28);
+  const totalHabits = habits.length;
+  const overallRate = habits.length > 0
+    ? Math.round(habits.reduce((acc, h) => acc + getCompletionRate(h), 0) / habits.length)
+    : 0;
+  const bestStreak = habits.reduce((max, h) => Math.max(max, getLongestStreak(h)), 0);
+  const totalDays = habits.reduce((acc, h) => acc + h.completionDates.length, 0);
 
-    let y = 40;
-    doc.setFontSize(13);
-    doc.text('Last 7 Days Completion', 14, y);
-    y += 8;
-    doc.setFontSize(10);
-    last7Days.forEach(d => {
-      doc.text(`${d.day}: ${d.completed}/${d.total} (${d.rate}%)`, 18, y);
-      y += 6;
-    });
-
-    y += 6;
-    doc.setFontSize(13);
-    doc.text('Per Habit Stats', 14, y);
-    y += 8;
-    doc.setFontSize(10);
-    habitStats.forEach(h => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.text(`${h.icon} ${h.name} (${h.category || 'No category'})`, 18, y);
-      y += 6;
-      doc.text(`  Streak: ${h.streak} | Days Done: ${h.completeDays} | Total: ${h.totalCompletions}`, 22, y);
-      y += 8;
-    });
-
-    doc.save(`habitkit-report-${today}.pdf`);
-  };
-
-  // Last 7 days completion data
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    const dateStr = formatDate(date);
-    const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short' });
-    let completed = 0;
-    let total = 0;
-    habits.forEach(h => {
-      total += h.completionsPerDay;
-      completed += Math.min(h.completions[dateStr] || 0, h.completionsPerDay);
-    });
-    return { day: dayLabel, completed, total, rate: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  // Weekly completion data
+  const weeklyData = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const ds = formatDate(d);
+    const completed = habits.filter(h => h.completionDates.includes(ds)).length;
+    return {
+      day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      completed,
+      total: habits.length,
+    };
   });
 
-  // Per-habit stats
-  const habitStats = habits.map(h => {
-    const dates = Object.keys(h.completions);
-    const totalCompletions = Object.values(h.completions).reduce((a, b) => a + b, 0);
-    const completeDays = dates.filter(d => (h.completions[d] || 0) >= h.completionsPerDay).length;
-
-    // Current streak
-    let streak = 0;
-    const today = new Date();
-    for (let i = 0; i < 365; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const ds = formatDate(d);
-      if ((h.completions[ds] || 0) >= h.completionsPerDay) {
-        streak++;
-      } else if (i > 0) break;
-    }
-
-    return { ...h, totalCompletions, completeDays, streak };
-  });
-
-  // Category pie chart
-  const categoryData = habits.reduce((acc, h) => {
-    const cat = h.category || 'Uncategorized';
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const pieData = Object.entries(categoryData).map(([name, value]) => ({ name, value }));
-  const pieColors = ['hsl(270,70%,55%)', 'hsl(350,80%,60%)', 'hsl(217,91%,60%)', 'hsl(142,70%,45%)', 'hsl(38,95%,55%)', 'hsl(180,70%,45%)'];
+  // Habit comparison
+  const habitComparison = habits.map(h => ({
+    name: `${h.icon} ${h.name.substring(0, 10)}`,
+    streak: getCurrentStreak(h),
+    color: h.color,
+  })).sort((a, b) => b.streak - a.streak);
 
   return (
-    <div className="pb-24 px-4">
-      <header className="flex items-center justify-between py-4">
-        <h1 className="text-xl font-bold text-foreground">Statistics</h1>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium"
-        >
-          <Download className="w-4 h-4" /> Export
-        </button>
+    <div className="pb-24 px-5">
+      <header className="py-5">
+        <h1 className="text-2xl font-bold text-foreground">Statistics</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">Your habit analytics</p>
       </header>
 
       {habits.length === 0 ? (
-        <p className="text-center text-muted-foreground py-20">Add habits to see your stats</p>
+        <div className="text-center py-20">
+          <div className="text-5xl mb-4">📊</div>
+          <p className="text-foreground font-semibold">No data yet</p>
+          <p className="text-muted-foreground text-sm mt-1">Start tracking habits to see stats</p>
+        </div>
       ) : (
-        <div className="space-y-6">
-          {/* Weekly completion */}
-          <div className="bg-card border border-border rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Last 7 Days Completion</h3>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={last7Days}>
-                <XAxis dataKey="day" tick={{ fill: 'hsl(240,5%,55%)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'hsl(240,5%,55%)', fontSize: 12 }} axisLine={false} tickLine={false} />
+        <div className="space-y-4">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-2xl font-bold text-foreground">{totalHabits}</p>
+              <p className="text-xs text-muted-foreground mt-1">Total Habits</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-2xl font-bold text-primary">{overallRate}%</p>
+              <p className="text-xs text-muted-foreground mt-1">Completion Rate</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-2xl font-bold text-foreground">🔥 {bestStreak}</p>
+              <p className="text-xs text-muted-foreground mt-1">Best Streak</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-2xl font-bold text-foreground">{totalDays}</p>
+              <p className="text-xs text-muted-foreground mt-1">Total Completed</p>
+            </div>
+          </div>
+
+          {/* Weekly Chart */}
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Weekly Completion</h3>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={weeklyData}>
+                <XAxis dataKey="day" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis hide />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'hsl(240,5%,13%)', border: '1px solid hsl(240,4%,20%)', borderRadius: 8, color: '#fff' }}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: 8,
+                    color: 'hsl(var(--foreground))',
+                    fontSize: 12,
+                  }}
                 />
-                <Bar dataKey="completed" fill="hsl(270,70%,55%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="completed" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Completion rate */}
-          <div className="bg-card border border-border rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Daily Completion Rate (%)</h3>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={last7Days}>
-                <XAxis dataKey="day" tick={{ fill: 'hsl(240,5%,55%)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fill: 'hsl(240,5%,55%)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'hsl(240,5%,13%)', border: '1px solid hsl(240,4%,20%)', borderRadius: 8, color: '#fff' }}
-                />
-                <Bar dataKey="rate" fill="hsl(142,70%,45%)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Categories pie */}
-          {pieData.length > 0 && (
-            <div className="bg-card border border-border rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Habits by Category</h3>
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, value, x, y, textAnchor }) => <text x={x} y={y} textAnchor={textAnchor} fill="hsl(240,5%,85%)" fontSize={11}>{`${name} (${value})`}</text>} labelLine={true}>
-                    {pieData.map((_, idx) => (
-                      <Cell key={idx} fill={pieColors[idx % pieColors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: 'transparent', border: 'none', color: '#fff' }} />
-                </PieChart>
-              </ResponsiveContainer>
+          {/* Habit Comparison */}
+          {habitComparison.length > 0 && (
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-foreground mb-3">Habit Streaks</h3>
+              <div className="space-y-3">
+                {habitComparison.map((h, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-sm w-28 truncate text-foreground">{h.name}</span>
+                    <div className="flex-1 h-6 bg-muted rounded-lg overflow-hidden">
+                      <div
+                        className="h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2"
+                        style={{
+                          width: `${Math.max(10, (h.streak / Math.max(bestStreak, 1)) * 100)}%`,
+                          backgroundColor: h.color,
+                        }}
+                      >
+                        <span className="text-xs font-bold text-white">{h.streak}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-
-          {/* Per habit stats */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Per Habit</h3>
-            {habitStats.map(h => (
-              <div key={h.id} className="bg-card border border-border rounded-lg p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                    style={{ backgroundColor: `hsl(${h.color} / 0.2)` }}
-                  >
-                    {h.icon}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">{h.name}</p>
-                    <p className="text-xs text-muted-foreground">{h.category || 'No category'}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center">
-                    <p className="text-lg font-bold" style={{ color: `hsl(${h.color})` }}>{h.streak}</p>
-                    <p className="text-xs text-muted-foreground">Streak</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-foreground">{h.completeDays}</p>
-                    <p className="text-xs text-muted-foreground">Days Done</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-foreground">{h.totalCompletions}</p>
-                    <p className="text-xs text-muted-foreground">Total</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>
