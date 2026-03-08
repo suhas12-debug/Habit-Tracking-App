@@ -124,7 +124,7 @@ export default function StatsPage() {
                       <Cell key={idx} fill={pieColors[idx % pieColors.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(240,5%,13%)', border: '1px solid hsl(240,4%,20%)', borderRadius: 8, color: '#fff' }} />
+                  <Tooltip contentStyle={{ backgroundColor: 'transparent', border: 'none', color: '#fff' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
