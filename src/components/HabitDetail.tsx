@@ -13,7 +13,7 @@ interface HabitDetailProps {
   onRemoveFreeze: (id: string, date: string) => void;
 }
 
-export function HabitDetail({ habit, onClose, onEdit, onDelete, onToggleDate, onStreakFreeze }: HabitDetailProps) {
+export function HabitDetail({ habit, onClose, onEdit, onDelete, onToggleDate, onStreakFreeze, onRemoveFreeze }: HabitDetailProps) {
   const today = formatDate(new Date());
   const isCompleteToday = habit.completionDates.includes(today);
   const streak = getCurrentStreak(habit);
