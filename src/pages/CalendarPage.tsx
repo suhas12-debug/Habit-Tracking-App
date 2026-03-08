@@ -170,7 +170,7 @@ export default function CalendarPage() {
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               placeholder="Add a note... (e.g. trip plan)"
-              className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground resize-none h-16 focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none h-16 focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <div className="flex items-center justify-between mt-2">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
