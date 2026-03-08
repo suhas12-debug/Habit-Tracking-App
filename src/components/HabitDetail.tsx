@@ -153,10 +153,21 @@ export function HabitDetail({ habit, onClose, onEdit, onDelete, onToggleDate, on
         {/* Streak Freezes */}
         {habit.streakFreezes.length > 0 && (
           <div className="bg-card border border-border rounded-xl p-4 mb-6">
-            <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-              <Snowflake className="w-4 h-4" /> Streak Freezes Used
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Snowflake className="w-4 h-4" /> Streak Freezes ({habit.streakFreezes.length})
             </h3>
-            <p className="text-sm text-muted-foreground">{habit.streakFreezes.length} freeze{habit.streakFreezes.length !== 1 ? 's' : ''} used</p>
+            <div className="flex flex-wrap gap-2">
+              {habit.streakFreezes.map(date => (
+                <button
+                  key={date}
+                  onClick={() => onRemoveFreeze(habit.id, date)}
+                  className="bg-muted/50 hover:bg-destructive/20 text-foreground text-xs px-2.5 py-1.5 rounded-lg transition-colors border border-border hover:border-destructive"
+                >
+                  {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ✕
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Click to remove a freeze</p>
           </div>
         )}
       </div>
