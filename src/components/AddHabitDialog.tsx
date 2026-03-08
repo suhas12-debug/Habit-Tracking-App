@@ -36,6 +36,7 @@ export function AddHabitDialog({ open, onClose, onSave, editHabit, onDelete }: A
       streakFreezes: editHabit?.streakFreezes || [],
       notes: editHabit?.notes || {},
       archived: editHabit?.archived || false,
+      order: editHabit?.order ?? Date.now(),
       createdAt: editHabit?.createdAt || new Date().toISOString(),
     });
     onClose();
