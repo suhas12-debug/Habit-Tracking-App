@@ -16,6 +16,13 @@ export default function HabitsPage() {
     setHabits(getHabits());
   }, []);
 
+  // Listen for add event from bottom nav
+  useEffect(() => {
+    const handler = () => { setEditHabit(null); setShowAdd(true); };
+    window.addEventListener('habitgrid:add', handler);
+    return () => window.removeEventListener('habitgrid:add', handler);
+  }, []);
+
   const save = (updated: Habit[]) => {
     setHabits(updated);
     saveHabits(updated);
