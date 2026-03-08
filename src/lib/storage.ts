@@ -20,8 +20,26 @@ export interface Reminder {
   days: number[]; // 0=Mon...6=Sun
 }
 
+export interface CalendarNote {
+  id: string;
+  date: string; // "YYYY-MM-DD"
+  text: string;
+  createdAt: string;
+}
+
+export interface CalendarReminder {
+  id: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  title: string;
+  notified: boolean;
+  createdAt: string;
+}
+
 const HABITS_KEY = 'habitgrid_habits';
 const REMINDERS_KEY = 'habitgrid_reminders';
+const CALENDAR_NOTES_KEY = 'habitgrid_calendar_notes';
+const CALENDAR_REMINDERS_KEY = 'habitgrid_calendar_reminders';
 const ONBOARDING_KEY = 'habitgrid_onboarding_done';
 
 export function getHabits(): Habit[] {
