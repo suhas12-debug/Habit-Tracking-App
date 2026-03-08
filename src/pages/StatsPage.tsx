@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Download } from 'lucide-react';
-import { getHabits, exportAllData, Habit, formatDate } from '@/lib/storage';
+import { getHabits, Habit, formatDate } from '@/lib/storage';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import jsPDF from 'jspdf';
 
 export default function StatsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
