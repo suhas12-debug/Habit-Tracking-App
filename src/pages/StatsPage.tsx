@@ -143,7 +143,7 @@ export default function StatsPage() {
               <h3 className="text-sm font-semibold text-foreground mb-3">Habits by Category</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, value }) => `${name} (${value})`}>
+                  <Pie data={pieData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, value, x, y, textAnchor }) => <text x={x} y={y} textAnchor={textAnchor} fill="hsl(240,5%,85%)" fontSize={11}>{`${name} (${value})`}</text>} labelLine={true}>
                     {pieData.map((_, idx) => (
                       <Cell key={idx} fill={pieColors[idx % pieColors.length]} />
                     ))}
