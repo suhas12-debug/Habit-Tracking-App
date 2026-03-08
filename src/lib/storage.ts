@@ -60,6 +60,24 @@ export function saveReminders(reminders: Reminder[]) {
   localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
 }
 
+export function getCalendarNotes(): CalendarNote[] {
+  const data = localStorage.getItem(CALENDAR_NOTES_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveCalendarNotes(notes: CalendarNote[]) {
+  localStorage.setItem(CALENDAR_NOTES_KEY, JSON.stringify(notes));
+}
+
+export function getCalendarReminders(): CalendarReminder[] {
+  const data = localStorage.getItem(CALENDAR_REMINDERS_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveCalendarReminders(reminders: CalendarReminder[]) {
+  localStorage.setItem(CALENDAR_REMINDERS_KEY, JSON.stringify(reminders));
+}
+
 export function isOnboardingDone(): boolean {
   return localStorage.getItem(ONBOARDING_KEY) === 'true';
 }
