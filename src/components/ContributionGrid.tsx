@@ -59,43 +59,56 @@ export function ContributionGrid({ habit, days = 365, onToggle, cellSize = 12 }:
   );
 }
 
-// Compact grid for habit cards (current month only)
+// Compact grid for habit cards (current week: Mon-Sun, 7 boxes)
 export function CompactGrid({ habit }: { habit: Habit }) {
   const completions = new Set(habit.completionDates);
   const today = formatDate(new Date());
   const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  
+  // Get Monday of current week
+  const day = now.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayOffset);
 
-  const cells = Array.from({ length: daysInMonth }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth(), i + 1);
+  const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  const cells = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
     const date = formatDate(d);
+    const isBeforeCreation = date < habit.startDate;
     return {
       date,
-      isCompleted: habit.frequency === 'weekly'
+      label: dayLabels[i],
+      isCompleted: isBeforeCreation ? false : (habit.frequency === 'weekly'
         ? isWeekCompleted(habit, d)
-        : completions.has(date),
+        : completions.has(date)),
       isToday: date === today,
       isFuture: date > today,
+      isBeforeCreation,
     };
   });
 
   return (
-    <div className="flex flex-wrap gap-[2px]">
+    <div className="flex gap-[4px]">
       {cells.map((cell) => (
-        <div
-          key={cell.date}
-          className={`w-[10px] h-[10px] rounded-[2px] transition-all ${
-            cell.isToday ? 'ring-1 ring-foreground/25' : ''
-          }`}
-          style={{
-            backgroundColor: cell.isFuture
-              ? 'transparent'
-              : cell.isCompleted
-              ? habit.color
-              : 'hsl(var(--muted))',
-            opacity: cell.isFuture ? 0.15 : cell.isCompleted ? 1 : 0.3,
-          }}
-        />
+        <div key={cell.date} className="flex flex-col items-center gap-0.5">
+          <span className="text-[8px] text-muted-foreground leading-none">{cell.label}</span>
+          <div
+            className={`w-[14px] h-[14px] rounded-[3px] transition-all ${
+              cell.isToday ? 'ring-1 ring-foreground/30' : ''
+            }`}
+            style={{
+              backgroundColor: cell.isBeforeCreation || cell.isFuture
+                ? 'transparent'
+                : cell.isCompleted
+                ? habit.color
+                : 'hsl(var(--muted))',
+              opacity: cell.isBeforeCreation ? 0.1 : cell.isFuture ? 0.15 : cell.isCompleted ? 1 : 0.3,
+            }}
+          />
+        </div>
       ))}
     </div>
   );
