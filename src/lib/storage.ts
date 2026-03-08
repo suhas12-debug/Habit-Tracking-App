@@ -7,6 +7,7 @@ export interface Habit {
   streakGoal: 'none' | 'daily' | 'weekly' | 'monthly';
   category: string;
   completionsPerDay: number;
+  weeklyGoal: number; // target completions per week, 0 = no goal
   reminders: Reminder[];
   completions: Record<string, number>; // "YYYY-MM-DD" -> completion count
   createdAt: string;
