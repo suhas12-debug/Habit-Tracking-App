@@ -202,6 +202,31 @@ export function AddHabitDialog({ open, onClose, onSave, editHabit, onDelete }: A
               </p>
             </div>
 
+            {/* Weekly Goal */}
+            <div>
+              <label className="block text-sm text-muted-foreground mb-2">Weekly Goal</label>
+              <div className="flex items-center gap-3">
+                <div className="bg-card border border-border rounded-lg px-4 py-2 flex-1 text-foreground">
+                  {weeklyGoal === 0 ? 'No goal' : `${weeklyGoal} / Week`}
+                </div>
+                <button
+                  onClick={() => setWeeklyGoal(Math.max(0, weeklyGoal - 1))}
+                  className="w-10 h-10 bg-card border border-border rounded-lg flex items-center justify-center text-foreground"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setWeeklyGoal(weeklyGoal + 1)}
+                  className="w-10 h-10 bg-card border border-border rounded-lg flex items-center justify-center text-foreground"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs text-primary mt-1">
+                Set a target for how many days per week to complete this habit
+              </p>
+            </div>
+
             {/* Reminders */}
             <div>
               <label className="block text-sm text-muted-foreground mb-2">Reminders</label>

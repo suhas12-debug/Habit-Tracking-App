@@ -51,7 +51,7 @@ export default function HabitsPage() {
     <div className="pb-24">
       <header className="flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-3">
-          <Settings className="w-5 h-5 text-muted-foreground" />
+          <ThemeToggle />
           <h1 className="text-xl font-bold text-foreground">
             Habit<span className="text-primary">Kit</span>
           </h1>
