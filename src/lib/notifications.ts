@@ -33,17 +33,28 @@ export async function checkNotificationPermission(): Promise<boolean> {
 }
 
 export async function scheduleCalendarReminder(reminder: CalendarReminder) {
+  console.log('[NOTIF] scheduleCalendarReminder called', reminder);
+  
   const permission = await requestNotificationPermission();
-  if (!permission) return;
+  console.log('[NOTIF] permission granted:', permission);
+  if (!permission) {
+    console.log('[NOTIF] Permission denied, aborting');
+    return;
+  }
 
   const [year, month, day] = reminder.date.split('-').map(Number);
   const [hours, minutes] = reminder.time.split(':').map(Number);
   const targetTime = new Date(year, month - 1, day, hours, minutes);
 
-  if (targetTime.getTime() <= Date.now()) return;
+  console.log('[NOTIF] Target time:', targetTime.toISOString(), 'Now:', new Date().toISOString());
+  
+  if (targetTime.getTime() <= Date.now()) {
+    console.log('[NOTIF] Target time is in the past, skipping');
+    return;
+  }
 
   try {
-    await LocalNotifications.schedule({
+    const result = await LocalNotifications.schedule({
       notifications: [
         {
           title: 'HabitKit Reminder 🔔',
@@ -55,8 +66,9 @@ export async function scheduleCalendarReminder(reminder: CalendarReminder) {
         },
       ],
     });
-  } catch {
-    // Fallback to web notification
+    console.log('[NOTIF] Scheduled successfully:', JSON.stringify(result));
+  } catch (err) {
+    console.log('[NOTIF] Capacitor schedule failed, using web fallback:', err);
     const delay = targetTime.getTime() - Date.now();
     if (delay > 0 && 'Notification' in window) {
       setTimeout(() => {
