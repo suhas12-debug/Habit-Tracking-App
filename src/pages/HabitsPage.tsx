@@ -253,6 +253,15 @@ export default function HabitsPage() {
           onRemoveFreeze={handleRemoveFreeze}
         />
       )}
+      {/* Quick Notes Button */}
+      <button
+        onClick={() => setShowNotes(true)}
+        className="fixed bottom-20 left-4 z-30 w-11 h-11 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+      >
+        <StickyNote className="w-5 h-5" />
+      </button>
+
+      <QuickNotes open={showNotes} onClose={() => setShowNotes(false)} />
     </div>
   );
 }
