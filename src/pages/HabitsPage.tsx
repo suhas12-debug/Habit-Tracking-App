@@ -4,7 +4,9 @@ import { Habit, getHabits, saveHabits, formatDate } from '@/lib/storage';
 import { HabitCard } from '@/components/HabitCard';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
 import { HabitDetail } from '@/components/HabitDetail';
+import { QuickNotes } from '@/components/QuickNotes';
 import { toast } from 'sonner';
+import { StickyNote } from 'lucide-react';
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
