@@ -13,6 +13,7 @@ export default function HabitsPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [editHabit, setEditHabit] = useState<Habit | null>(null);
   const [detailHabit, setDetailHabit] = useState<Habit | null>(null);
+  const [showNotes, setShowNotes] = useState(false);
 
   // Drag reorder state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
