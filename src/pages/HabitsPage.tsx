@@ -4,13 +4,16 @@ import { Habit, getHabits, saveHabits, formatDate } from '@/lib/storage';
 import { HabitCard } from '@/components/HabitCard';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
 import { HabitDetail } from '@/components/HabitDetail';
+import { QuickNotes } from '@/components/QuickNotes';
 import { toast } from 'sonner';
+import { StickyNote } from 'lucide-react';
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [editHabit, setEditHabit] = useState<Habit | null>(null);
   const [detailHabit, setDetailHabit] = useState<Habit | null>(null);
+  const [showNotes, setShowNotes] = useState(false);
 
   // Drag reorder state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -250,6 +253,15 @@ export default function HabitsPage() {
           onRemoveFreeze={handleRemoveFreeze}
         />
       )}
+      {/* Quick Notes Button */}
+      <button
+        onClick={() => setShowNotes(true)}
+        className="fixed bottom-20 left-4 z-30 w-11 h-11 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+      >
+        <StickyNote className="w-5 h-5" />
+      </button>
+
+      <QuickNotes open={showNotes} onClose={() => setShowNotes(false)} />
     </div>
   );
 }
