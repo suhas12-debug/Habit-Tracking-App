@@ -1,73 +1,54 @@
-# Welcome to your Lovable project
+# 🌱 HabitGrid – Minimal Habit Tracker
 
-## Project info
+HabitGrid is a clean, offline-first habit tracking app for Android that helps you build consistency through visual progress and gentle daily reminders. No accounts, no cloud, no distractions — just you and your habits.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## ✨ Features
 
-## How can I edit this code?
+- ✅ **Daily Habit Tracking** – Mark habits complete with a single tap and haptic feedback
+- 📊 **GitHub-Style Heatmap** – Visualize your consistency across weeks with a 7-row contribution grid
+- 🔥 **Streaks & Streak Freezes** – Track current and longest streaks; freezes protect you on off days
+- 📅 **Weekly Habit Rules** – Choose specific days of the week for each habit
+- 🔔 **Local Notifications** – Native Android reminders at your chosen time (no internet needed)
+- 📝 **Quick Notes** – Capture thoughts instantly with a floating quick-note overlay
+- ✋ **Long-Press Reorder** – Rearrange habits with intuitive drag gestures
+- 📈 **Stats & Calendar Views** – See your progress over time
+- 💾 **100% Offline** – All data stored locally on your device (LocalStorage)
+- 📤 **Export Data** – Download your habits and history as JSON or CSV
+- 🎨 **Minimal Light Theme** – Plus Jakarta Sans typography, soft greens, distraction-free
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Frontend:** React 18 + TypeScript + Vite
+- **Styling:** Tailwind CSS + shadcn/ui
+- **Mobile:** Capacitor 6 (Android, JDK 21)
+- **Storage:** LocalStorage (offline-first)
+- **Notifications:** Capacitor Local Notifications
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🚀 Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+```bash
+# Install dependencies
+npm install
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run the web dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 📱 Build the Android APK
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+npx cap sync android
+cd android
+./gradlew assembleRelease
+```
 
-**Use GitHub Codespaces**
+The APK will be at `android/app/build/outputs/apk/release/app-release.apk`.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📥 Download
 
-## What technologies are used for this project?
+Pre-built APKs are available in the [Releases](../../releases) section.
 
-This project is built with:
+## 📄 License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT
