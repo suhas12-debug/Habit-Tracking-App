@@ -26,6 +26,13 @@ HabitGrid is a clean, offline-first habit tracking app for Android that helps yo
 
 ## 🚀 Getting Started
 
+### Option 1: Double-Click Launcher (Windows Only)
+If you downloaded the code as a ZIP file:
+1. Extract the ZIP file.
+2. Double-click the **`start-app.bat`** file. 
+*Note: This will automatically check for Node.js, install dependencies, and start the app in your browser at `http://localhost:5173`.*
+
+### Option 2: Terminal / Command Line
 ```bash
 # Install dependencies
 npm install
@@ -33,6 +40,7 @@ npm install
 # Run the web dev server
 npm run dev
 ```
+
 
 ## 📱 Build the Android APK
 
